@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+
+<html lang="us">
+  <head>
+    <script src="scripts/jquery-1.10.2.min.js"></script>
+    <script src="scripts/d3.v3.min.js"></script>
+    <script src="scripts/nv.d3.js"></script>
+    <link href="css/nv.d3.css" rel="stylesheet">
+    <style>
+      #chart svg {
+        height: 400px;
+        width: 800px;
+      }
+      #chart, #options-container {
+        height: 400px;
+        width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      #options-container {
+        padding-left:100px;
+      }
+    </style>
+    <script>
+      var gen_data = function(values_per_line, num_lines) {
+        var data = [];
+        var line_data, y_point;
+        for(var i = 0; i < num_lines; i++) {
+          line_data = {
+            key: "Line " + i,
+            values: [],
+            color: '#'+Math.floor(Math.random()*16777215).toString(16)
+          };
+          for(var j = 0; j < values_per_line; j++) {
+            y_point = Math.floor(Math.random()*100)+(j*Math.random()*50)
+            line_data.values.push({x: j+1, y: y_point});
+          }
+          data.push(line_data);
+        }
+        return data;
+      };
+
+      var create_graph = function(data) {
+        nv.addGraph(function() {
+          var chart = nv.models.lineChart();
+          chart.xAxis
+            .axisLabel("Time")
+            .tickFormat(d3.format(',r'));
+
+          chart.yAxis
+            .axisLabel('Random Values')
+            .tickFormat(d3.format(',r'));
+          d3.select('#chart svg')
+            .datum(data)
+            .transition().duration(500)
+            .call(chart);
+
+          nv.utils.windowResize(chart.update);
+
+          return chart;  
+        });
+      };
+
+      $(document).ready(function() {
+        $('#btn-change').on('click', function() {
+          var num_points = $('#num_points').val();
+          var num_lines = $('#num_lines').val();
+          var data = gen_data(num_points,num_lines);
+          $('#chart svg').empty();
+          create_graph(data);
+        });
+        var data = gen_data(50, 2);
+        console.log(data);
+        create_graph(data);
+      });
+
+    </script>
+  </head>
+
+  <body>
+    <div id="chart">
+      <svg></svg>
+    </div>
+
+    <div id="options-container">
+      <div class="option">
+        <label>Number of Points</label><br \>
+        <input id="num_points" type="text" pattern="\d*" value="50">
+      </div>
+      <div class="option">
+        <label>Number of Lines</label><br \>
+        <input id="num_lines" type="text" pattern="\d*" value="2">
+      </div>
+      <div class="option">
+        <button id="btn-change">Reset Graph</button>
+      </div>
+    </div>
+  </body>
+</html>
